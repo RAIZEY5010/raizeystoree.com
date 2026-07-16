@@ -3,9 +3,10 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: 'متجر رايز | RAIZ3Y STORE',
+  description: 'متجر رايز - المتجر الإلكتروني الأول للتسوق الموثوق والآمن',
+  generator: 'RAIZ3Y Store',
+  keywords: 'متجر، تسوق، رايز، إلكتروني',
   icons: {
     icon: [
       {
@@ -28,9 +29,12 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   colorScheme: 'light dark',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
+    { media: '(prefers-color-scheme: light)', color: '#ff7a00' },
+    { media: '(prefers-color-scheme: dark)', color: '#ff7a00' },
   ],
+  width: 'device-width',
+  initialScale: 1,
+  userScalable: false,
 }
 
 export default function RootLayout({
@@ -39,8 +43,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased">
+    <html lang="ar" className="dark" dir="rtl">
+      <body className="antialiased bg-background text-foreground">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
