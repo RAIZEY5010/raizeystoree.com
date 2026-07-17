@@ -12,8 +12,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { Mail } from 'lucide-react'
 
 function GoogleIcon() {
   return (
@@ -64,15 +64,13 @@ function getPasswordStrength(password: string) {
 }
 
 export default function Page() {
-  const [step, setStep] = useState<'form' | 'otp'>('form')
+  const [step, setStep] = useState<'form' | 'sent'>('form')
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [otp, setOtp] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
   const strength = getPasswordStrength(password)
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -87,10 +85,11 @@ export default function Page() {
         password,
         options: {
           data: { full_name: fullName },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       })
       if (error) throw error
-      setStep('otp')
+      setStep('sent')
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'حدث خطأ أثناء إنشاء الحساب')
     } finally {
@@ -98,38 +97,16 @@ export default function Page() {
     }
   }
 
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const supabase = createClient()
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const { error } = await supabase.auth.verifyOtp({
-        email,
-        token: otp,
-        type: 'signup',
-      })
-      if (error) throw error
-      router.push('/')
-      router.refresh()
-    } catch (error: unknown) {
-      setError('رمز التحقق غير صحيح، حاول مرة أخرى')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleResendOtp = async () => {
+  const handleResend = async () => {
     const supabase = createClient()
     setError(null)
     setInfo(null)
     try {
       const { error } = await supabase.auth.resend({ type: 'signup', email })
       if (error) throw error
-      setInfo('تم إرسال رمز جديد إلى بريدك الإلكتروني')
+      setInfo('تم إعادة إرسال رابط التفعيل إلى بريدك الإلكتروني')
     } catch {
-      setError('تعذر إرسال الرمز، حاول لاحقاً')
+      setError('تعذر إرسال الرابط، حاول لاحقاً')
     }
   }
 
@@ -168,9 +145,9 @@ export default function Page() {
               </>
             ) : (
               <>
-                <CardTitle className="text-2xl text-foreground">تفعيل الحساب</CardTitle>
+                <CardTitle className="text-2xl text-foreground">تحقق من بريدك</CardTitle>
                 <CardDescription>
-                  أدخل رمز التحقق المكون من 6 أرقام المرسل إلى
+                  أرسلنا رابط تفعيل إلى
                   <br />
                   <span dir="ltr" className="font-medium text-foreground">{email}</span>
                 </CardDescription>
@@ -276,48 +253,38 @@ export default function Page() {
                 </div>
               </form>
             ) : (
-              <form onSubmit={handleVerifyOtp}>
-                <div className="flex flex-col gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="otp">رمز التحقق</Label>
-                    <Input
-                      id="otp"
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={6}
-                      dir="ltr"
-                      placeholder="000000"
-                      className="text-center text-lg tracking-[0.5em]"
-                      required
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                    />
-                  </div>
-
-                  {error && (
-                    <p className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2">
-                      {error}
-                    </p>
-                  )}
-                  {info && (
-                    <p className="text-sm text-green-700 bg-green-600/10 rounded-lg px-3 py-2">
-                      {info}
-                    </p>
-                  )}
-
-                  <Button type="submit" className="w-full" disabled={isLoading || otp.length !== 6}>
-                    {isLoading ? 'جارٍ التفعيل...' : 'تفعيل الحساب'}
-                  </Button>
-
-                  <button
-                    type="button"
-                    onClick={handleResendOtp}
-                    className="text-sm text-primary hover:underline"
-                  >
-                    إعادة إرسال الرمز
-                  </button>
+              <div className="flex flex-col items-center gap-4 text-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Mail className="w-8 h-8 text-primary" />
                 </div>
-              </form>
+                <p className="text-sm text-muted-foreground">
+                  افتح بريدك الإلكتروني واضغط على رابط التفعيل لإكمال إنشاء الحساب.
+                  بعد التفعيل هتنتقل تلقائياً لصفحة المتجر.
+                </p>
+
+                {error && (
+                  <p className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2 w-full">
+                    {error}
+                  </p>
+                )}
+                {info && (
+                  <p className="text-sm text-green-700 bg-green-600/10 rounded-lg px-3 py-2 w-full">
+                    {info}
+                  </p>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  className="text-sm text-primary hover:underline"
+                >
+                  لم يصلك الرابط؟ إعادة الإرسال
+                </button>
+
+                <Link href="/auth/login" className="text-sm text-muted-foreground hover:underline">
+                  الرجوع لتسجيل الدخول
+                </Link>
+              </div>
             )}
           </CardContent>
         </Card>
