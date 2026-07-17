@@ -44,11 +44,11 @@ export default function HomePage() {
       {/* Navigation Header */}
       <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <Zap className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-primary">RAIZ3Y</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold flex items-center gap-1">
+              <span className="text-primary">RAIZEY</span>
+              <span className="text-foreground">STORE</span>
+            </h1>
           </div>
           
           {session ? (

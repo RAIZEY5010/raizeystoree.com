@@ -27,10 +27,9 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'light dark',
+  colorScheme: 'light',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ff7a00' },
-    { media: '(prefers-color-scheme: dark)', color: '#ff7a00' },
+    { media: '(prefers-color-scheme: light)', color: '#FF7A00' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -43,7 +42,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ar" className="dark" dir="rtl">
+    <html lang="ar" dir="rtl">
       <body className="antialiased bg-background text-foreground">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}

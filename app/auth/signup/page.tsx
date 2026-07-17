@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { Globe } from 'lucide-react'
 
 export default function Page() {
   const [email, setEmail] = useState('')
@@ -51,6 +52,24 @@ export default function Page() {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleGoogleSignUp = async () => {
+    const supabase = createClient()
+    setError(null)
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo:
+            process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ??
+            `${window.location.origin}/auth/callback`,
+        },
+      })
+      if (error) throw error
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'Failed to sign in with Google')
     }
   }
 
@@ -106,6 +125,26 @@ export default function Page() {
                     {isLoading ? 'Creating an account...' : 'Sign up'}
                   </Button>
                 </div>
+
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-gray-200"></span>
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-white px-2 text-gray-500">Or sign up with</span>
+                  </div>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleGoogleSignUp}
+                >
+                  <Globe className="w-4 h-4 mr-2" />
+                  Sign up with Google
+                </Button>
+
                 <div className="mt-4 text-center text-sm">
                   Already have an account?{' '}
                   <Link
